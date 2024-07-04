@@ -40,9 +40,18 @@ class TextAudioLoaderMultiNSFsid(torch.utils.data.Dataset):
         # spec_length = wav_length // hop_length
         audiopaths_and_text_new = []
         lengths = []
-        for audiopath, text, pitch, pitchf, dv, emotion_feature in self.audiopaths_and_text:
+        for (
+            audiopath,
+            text,
+            pitch,
+            pitchf,
+            dv,
+            emotion_feature,
+        ) in self.audiopaths_and_text:
             if self.min_text_len <= len(text) and len(text) <= self.max_text_len:
-                audiopaths_and_text_new.append([audiopath, text, pitch, pitchf, dv, emotion_feature])
+                audiopaths_and_text_new.append(
+                    [audiopath, text, pitch, pitchf, dv, emotion_feature]
+                )
                 lengths.append(os.path.getsize(audiopath) // (3 * self.hop_length))
         self.audiopaths_and_text = audiopaths_and_text_new
         self.lengths = lengths
@@ -172,7 +181,9 @@ class TextAudioCollateMultiNSFsid:
         )
         pitch_padded = torch.LongTensor(len(batch), max_phone_len)
         pitchf_padded = torch.FloatTensor(len(batch), max_phone_len)
-        emotion_padded = torch.FloatTensor(len(batch), max_phone_len, batch[0][6].shape[1])  # 수정된 부분
+        emotion_padded = torch.FloatTensor(
+            len(batch), max_phone_len, batch[0][6].shape[1]
+        )  # 수정된 부분
         phone_padded.zero_()
         pitch_padded.zero_()
         pitchf_padded.zero_()

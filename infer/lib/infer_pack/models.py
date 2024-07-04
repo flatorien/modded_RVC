@@ -111,12 +111,18 @@ class TextEncoder768(nn.Module):
         self._initialize_weights()
 
     def _initialize_weights(self):
-        if hasattr(self, 'emb_emotion'):
+        if hasattr(self, "emb_emotion"):
             nn.init.xavier_uniform_(self.emb_emotion.weight)
             if self.emb_emotion.bias is not None:
                 nn.init.zeros_(self.emb_emotion.bias)
 
-    def forward(self, phone: torch.Tensor, pitch: Optional[torch.Tensor], lengths: torch.Tensor, emotion: Optional[torch.Tensor] = None):
+    def forward(
+        self,
+        phone: torch.Tensor,
+        pitch: Optional[torch.Tensor],
+        lengths: torch.Tensor,
+        emotion: Optional[torch.Tensor] = None,
+    ):
         x = self.emb_phone(phone)
         if pitch is not None:
             x += self.emb_pitch(pitch)
@@ -412,13 +418,17 @@ class SineGen(torch.nn.Module):
                 f0_buf[:, :, idx + 1] = f0_buf[:, :, 0] * (
                     idx + 2
                 )  # idx + 2: the (idx+1)-th overtone, (idx+2)-th harmonic
-            rad_values = (f0_buf / self.sampling_rate) % 1  ###%1意味着n_har的乘积无法后处理优化
+            rad_values = (
+                f0_buf / self.sampling_rate
+            ) % 1  ###%1意味着n_har的乘积无法后处理优化
             rand_ini = torch.rand(
                 f0_buf.shape[0], f0_buf.shape[2], device=f0_buf.device
             )
             rand_ini[:, 0] = 0
             rad_values[:, 0, :] = rad_values[:, 0, :] + rand_ini
-            tmp_over_one = torch.cumsum(rad_values, 1)  # % 1  #####%1意味着后面的cumsum无法再优化
+            tmp_over_one = torch.cumsum(
+                rad_values, 1
+            )  # % 1  #####%1意味着后面的cumsum无法再优化
             tmp_over_one *= upp
             tmp_over_one = F.interpolate(
                 tmp_over_one.transpose(2, 1),
@@ -898,7 +908,6 @@ class SynthesizerTrnMs768NSFsid(nn.Module):
             + str(self.spk_embed_dim)
         )
 
-
     def remove_weight_norm(self):
         self.dec.remove_weight_norm()
         self.flow.remove_weight_norm()
@@ -958,7 +967,9 @@ class SynthesizerTrnMs768NSFsid(nn.Module):
         rate: Optional[torch.Tensor] = None,
     ):
         g = self.emb_g(sid).unsqueeze(-1)
-        m_p, logs_p, x_mask = self.enc_p(phone, pitch, phone_lengths, emotion)  # 감정 데이터 추가
+        m_p, logs_p, x_mask = self.enc_p(
+            phone, pitch, phone_lengths, emotion
+        )  # 감정 데이터 추가
         z_p = (m_p + torch.exp(logs_p) * torch.randn_like(m_p) * 0.66666) * x_mask
         if rate is not None:
             head = int(z_p.shape[2] * (1 - rate.item()))

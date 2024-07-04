@@ -272,9 +272,9 @@ class RVC:
                 f0 = f0[2:-3]
             else:
                 f0 = f0[2:]
-            f0bak[
-                part_length * idx // 160 : part_length * idx // 160 + f0.shape[0]
-            ] = f0
+            f0bak[part_length * idx // 160 : part_length * idx // 160 + f0.shape[0]] = (
+                f0
+            )
         f0bak = signal.medfilt(f0bak, 3)
         f0bak *= pow(2, f0_up_key / 12)
         return self.get_f0_post(f0bak)

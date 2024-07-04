@@ -42,7 +42,9 @@ def load_checkpoint_d(checkpoint_path, combd, sbd, optimizer=None, load_opt=1):
                         )  #
                         raise KeyError
                 else:
-                    logger.info("%s is not in the checkpoint", k)  # pretrain에 없는 경우
+                    logger.info(
+                        "%s is not in the checkpoint", k
+                    )  # pretrain에 없는 경우
                     new_state_dict[k] = v  # 모델 자체의 초기값 사용
             except:
                 # logger.info(traceback.format_exc())

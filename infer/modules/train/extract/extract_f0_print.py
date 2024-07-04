@@ -110,9 +110,7 @@ class FeatureInput(object):
         return f0_coarse
 
     def extract_emotion_features(self, path):
-        path = (
-            path.strip(" ").strip('"').strip("\n").strip('"').strip(" ")
-        )
+        path = path.strip(" ").strip('"').strip("\n").strip('"').strip(" ")
         y, sr = librosa.load(path, sr=self.fs)
         # 감정 특성 계산
         intensity = librosa.feature.rms(y=y).T

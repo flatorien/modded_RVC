@@ -230,7 +230,9 @@ def run(
                 logger.info("loaded pretrained %s" % (hps.pretrainG))
             pretrained_dict = torch.load(hps.pretrainG, map_location="cpu")["model"]
             model_dict = net_g.state_dict()
-            pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+            pretrained_dict = {
+                k: v for k, v in pretrained_dict.items() if k in model_dict
+            }
             model_dict.update(pretrained_dict)
             net_g.load_state_dict(model_dict)
         if hps.pretrainD != "":
@@ -238,7 +240,9 @@ def run(
                 logger.info("loaded pretrained %s" % (hps.pretrainD))
             pretrained_dict = torch.load(hps.pretrainD, map_location="cpu")["model"]
             model_dict = net_d.state_dict()
-            pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+            pretrained_dict = {
+                k: v for k, v in pretrained_dict.items() if k in model_dict
+            }
             model_dict.update(pretrained_dict)
             net_d.load_state_dict(model_dict)
 
@@ -427,7 +431,6 @@ def train_and_evaluate(
             spec_lengths = spec_lengths.cuda(rank, non_blocking=True)
             wave = wave.cuda(rank, non_blocking=True)
             wave_lengths = wave_lengths.cuda(rank, non_blocking=True)
-
 
         # Calculate
         with autocast(enabled=hps.train.fp16_run):

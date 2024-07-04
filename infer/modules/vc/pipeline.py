@@ -19,7 +19,6 @@ import torchcrepe
 from scipy import signal
 
 
-
 now_dir = os.getcwd()
 sys.path.append(now_dir)
 
@@ -270,7 +269,11 @@ class Pipeline(object):
         p_len = torch.tensor([p_len], device=self.device).long()
         with torch.no_grad():
             hasp = pitch is not None and pitchf is not None
-            arg = (feats, p_len, pitch, pitchf, sid, emotion_features) if hasp else (feats, p_len, sid, emotion_features)
+            arg = (
+                (feats, p_len, pitch, pitchf, sid, emotion_features)
+                if hasp
+                else (feats, p_len, sid, emotion_features)
+            )
             audio1 = (net_g.infer(*arg)[0][0, 0]).data.cpu().float().numpy()
             del hasp, arg
         del feats, p_len, padding_mask
@@ -375,7 +378,11 @@ class Pipeline(object):
         if emotion_features_file is not None and if_f0 == 1:
             try:
                 emotion_features = np.load(emotion_features_file.name)
-                emotion_features = torch.tensor(emotion_features, device=self.device).unsqueeze(0).float()
+                emotion_features = (
+                    torch.tensor(emotion_features, device=self.device)
+                    .unsqueeze(0)
+                    .float()
+                )
                 logger.info("Using emotion features.")
             except Exception as e:
                 logger.warning("Failed to load emotion features: %s", str(e))
@@ -399,7 +406,9 @@ class Pipeline(object):
                         index_rate,
                         version,
                         protect,
-                        emotion_features=emotion_features[:, s // self.window : (t + self.t_pad2) // self.window]
+                        emotion_features=emotion_features[
+                            :, s // self.window : (t + self.t_pad2) // self.window
+                        ],
                     )[self.t_pad_tgt : -self.t_pad_tgt]
                 )
             else:
@@ -435,7 +444,11 @@ class Pipeline(object):
                     index_rate,
                     version,
                     protect,
-                    emotion_features=emotion_features[:, t // self.window :] if emotion_features is not None else None
+                    emotion_features=(
+                        emotion_features[:, t // self.window :]
+                        if emotion_features is not None
+                        else None
+                    ),
                 )[self.t_pad_tgt : -self.t_pad_tgt]
             )
         else:
